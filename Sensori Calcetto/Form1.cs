@@ -99,7 +99,7 @@ namespace Sensori_Calcetto
                 string dato = "{\"golaB\": " + goalB + ", \"ora\": " + "\"" + ora.ToString("HH:mm") + "\"" + "}";
 
                 invio(dato);
-                //"{\"goalDone\": " + GetGoalDone() + "}";
+                
             }
             else
             {
