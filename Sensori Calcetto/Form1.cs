@@ -14,6 +14,11 @@ using System.Net;
 using System.IO;
 using System.Collections;
 using Sensori_Calcetto.Services;
+using MQTTnet;
+using MQTTnet.Client.Options;
+using MQTTnet.Client;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace Sensori_Calcetto
 {
@@ -42,25 +47,44 @@ namespace Sensori_Calcetto
         
 
 
-        public void invio(string sq)
+        public async Task invioAsync(string sq)
           {
-              HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://192.168.102.11:8011/tables/AB123");
-              httpWebRequest.ContentType = "text/json";
-              httpWebRequest.Method = "POST";
+            var factory = new MqttFactory();
+            var mqttClient = factory.CreateMqttClient();
 
-              using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-              {
-                  streamWriter.Write(sq);
-              }
+            var options = new MqttClientOptionsBuilder()
+                .WithTcpServer("192.168.101.49", 1883) // Port is optional
+                .Build();
 
-              var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
 
-              Console.Out.WriteLine(httpResponse.StatusCode);
+            await mqttClient.ConnectAsync(options, CancellationToken.None);
 
-              httpResponse.Close();
+            var message = new MqttApplicationMessageBuilder()
+                        .WithTopic("CB/1/P2")
+                        .WithPayload(sq)
+                        .WithExactlyOnceQoS()
+                        .WithRetainFlag()
+                        .Build();
 
-              System.Threading.Thread.Sleep(1000);
-          }
+            await mqttClient.PublishAsync(message);
+            /*
+                        HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://192.168.102.11:8011/tables/AB123");
+                          httpWebRequest.ContentType = "text/json";
+                          httpWebRequest.Method = "POST";
+
+                          using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                          {
+                              streamWriter.Write(sq);
+                          }
+
+                          var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                          Console.Out.WriteLine(httpResponse.StatusCode);
+
+                          httpResponse.Close();
+
+                          System.Threading.Thread.Sleep(1000);*/
+        }
 
         private void GR(object sender, EventArgs e)
         {
@@ -74,7 +98,7 @@ namespace Sensori_Calcetto
                 label2.Text = " " + goalR;
                 string dato = "{\"golaR\": " + goalR + ", \"ora\": " + "\"" + ora.ToString("HH:mm") + "\"" + "}";
 
-                invio(dato);
+                invioAsync(dato);
             }
             else
             {
@@ -98,7 +122,7 @@ namespace Sensori_Calcetto
 
                 string dato = "{\"golaB\": " + goalB + ", \"ora\": " + "\"" + ora.ToString("HH:mm") + "\"" + "}";
 
-                invio(dato);
+                invioAsync(dato);
                 
             }
             else
@@ -107,14 +131,13 @@ namespace Sensori_Calcetto
                 NoGiocatori.Text = "Partita non iniziata";
             }
         }
-        
 
         private void GMB_Click(object sender, EventArgs e)
         {
             goalMB = goalMB + 1; 
             string dato = "{\"GoalMancatoBlu\": " + goalMB + "}";
 
-            invio(dato);
+            invioAsync(dato);
         }
 
         private void GMR_Click(object sender, EventArgs e)
@@ -122,7 +145,7 @@ namespace Sensori_Calcetto
             goalMR = goalMR + 1;
             string dato = "{\"GoalMancatoRosso\": " + goalMR + "}";
 
-            invio(dato);
+            invioAsync(dato);
         }
         int G1BP,G1RP, G2BP, G2RP = 0;
         private void G1B_TextChanged(object sender, EventArgs e)
@@ -150,7 +173,7 @@ namespace Sensori_Calcetto
 
                 string dato = "{\"Tavolo\": " + Tavolo + ", \"G1blu\":" + "\""+ G1blu + "\"" + ", \"G2blu\":" + "\"" + G2blu + "\"" + ", \"G1ros\":" + "\"" + G1ros + "\"" + ", \"G1blu\":" + "\"" + G2ros + "\"" + ", \"Ora_Inizio\": " + "\"" + ora.ToString("HH:mm") + "\"" + "}";
 
-                invio(dato);
+                invioAsync(dato);
             }
             else
             {
@@ -171,7 +194,8 @@ namespace Sensori_Calcetto
 
                 string dato = "{\"Ora_fine\": " + ora.ToString("HH:mm") + "}";
 
-                invio(dato);
+                invioAsync(dato);
+
             }
             else
             {
