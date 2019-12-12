@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sensori_Calcetto.Services
 {
-     interface IInvioService
+     public interface IInvioService
     {
         void invio(string sq);
     }

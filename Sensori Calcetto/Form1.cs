@@ -23,8 +23,12 @@ using System.Net.Security;
 namespace Sensori_Calcetto
 {
     
-    public partial class Form1 : Form
+    public partial class Form1 : Form 
     {
+        IInvioService _invio = new InvioService();
+        
+
+
         public Form1()
         {
             InitializeComponent();
@@ -44,8 +48,6 @@ namespace Sensori_Calcetto
                 return Giocatori_ok;
         }
 
-        
-
 
         public async Task invioAsync(string sq)
           {
@@ -60,7 +62,7 @@ namespace Sensori_Calcetto
             await mqttClient.ConnectAsync(options, CancellationToken.None);
 
             var message = new MqttApplicationMessageBuilder()
-                        .WithTopic("CB/1/P2")
+                        .WithTopic("")
                         .WithPayload(sq)
                         .WithExactlyOnceQoS()
                         .WithRetainFlag()
@@ -98,7 +100,8 @@ namespace Sensori_Calcetto
                 label2.Text = " " + goalR;
                 string dato = "{\"golaR\": " + goalR + ", \"ora\": " + "\"" + ora.ToString("HH:mm") + "\"" + "}";
 
-                invioAsync(dato);
+                _invio.invio(dato);
+                //invioAsync(dato);
             }
             else
             {
@@ -122,8 +125,9 @@ namespace Sensori_Calcetto
 
                 string dato = "{\"golaB\": " + goalB + ", \"ora\": " + "\"" + ora.ToString("HH:mm") + "\"" + "}";
 
-                invioAsync(dato);
-                
+                _invio.invio(dato);
+                //invioAsync(dato);
+
             }
             else
             {
@@ -137,7 +141,8 @@ namespace Sensori_Calcetto
             goalMB = goalMB + 1; 
             string dato = "{\"GoalMancatoBlu\": " + goalMB + "}";
 
-            invioAsync(dato);
+            _invio.invio(dato);
+            //invioAsync(dato);
         }
 
         private void GMR_Click(object sender, EventArgs e)
@@ -145,7 +150,8 @@ namespace Sensori_Calcetto
             goalMR = goalMR + 1;
             string dato = "{\"GoalMancatoRosso\": " + goalMR + "}";
 
-            invioAsync(dato);
+            _invio.invio(dato);
+            //invioAsync(dato);
         }
         int G1BP,G1RP, G2BP, G2RP = 0;
         private void G1B_TextChanged(object sender, EventArgs e)
@@ -173,7 +179,8 @@ namespace Sensori_Calcetto
 
                 string dato = "{\"Tavolo\": " + Tavolo + ", \"G1blu\":" + "\""+ G1blu + "\"" + ", \"G2blu\":" + "\"" + G2blu + "\"" + ", \"G1ros\":" + "\"" + G1ros + "\"" + ", \"G1blu\":" + "\"" + G2ros + "\"" + ", \"Ora_Inizio\": " + "\"" + ora.ToString("HH:mm") + "\"" + "}";
 
-                invioAsync(dato);
+                _invio.invio(dato);
+                //invioAsync(dato);
             }
             else
             {
@@ -194,7 +201,8 @@ namespace Sensori_Calcetto
 
                 string dato = "{\"Ora_fine\": " + ora.ToString("HH:mm") + "}";
 
-                invioAsync(dato);
+                _invio.invio(dato);
+                //invioAsync(dato);
 
             }
             else
